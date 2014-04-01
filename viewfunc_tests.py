@@ -1,7 +1,7 @@
 # This is for view functions
 import subprocess
 import random
-from string import Template
+from jinja2 import Template
 import string
 import constants
 import unittest
@@ -32,8 +32,8 @@ class TestViewFuncs(unittest.TestCase):
         testfunc = ''.join([ random.choice(string.ascii_letters) for _ in range(10) ])
         devcyan_addr = ''.join([devcyan, testfunc])
         print (devcyan_addr)
-        temp = Template(views.error_page)
-        funcout = temp.substitute(url = testfunc)
+        temp = Template(views.error)
+        funcout = temp.render(url = testfunc)
         curlout = subprocess.check_output(['curl', devcyan_addr],universal_newlines = True)
         self.assertEqual(curlout, funcout)
 
