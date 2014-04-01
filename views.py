@@ -1,7 +1,8 @@
 from string import Template
 import cyan
 
-# page content: just a string
+cyan_port = 20143
+
 welcome_page = '''
 <html>
 <head>$head</head>
@@ -68,9 +69,7 @@ def devcyan(environ, start_response):
         page_content = myfunc(*args)
         return [page_content.encode('utf-8')]
 
-
-
 if __name__=='__main__':
     cyan.route('hello_cyan', hello_cyan)
     cyan.route('seeyou_cyan', seeyou_cyan)
-    cyan.runapp('localhost', 20143, devcyan)
+    cyan.runapp('localhost', cyan_port, devcyan)
