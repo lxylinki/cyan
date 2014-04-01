@@ -1,16 +1,10 @@
 from jinja2 import Template
 import cyan
 
-<<<<<<< HEAD
-cyan_port = 20143
-
-welcome_page = '''
-=======
 # page content: just a string
 
 hey='''
 <!DOCTYPE html>
->>>>>>> 156c966685eb0c5b472afe12a62f68b1ebcbb545
 <html>
     <head>
         <title>Cyan</title>
@@ -96,7 +90,9 @@ def devcyan(environ, start_response):
         page_content = myfunc(*args)
         return [page_content.encode('utf-8')]
 
+
+
 if __name__=='__main__':
     cyan.route('hello_cyan', hello_cyan)
     cyan.route('seeyou_cyan', seeyou_cyan)
-    cyan.runapp('localhost', cyan_port, devcyan)
+    cyan.runapp('localhost', 20143, devcyan)
