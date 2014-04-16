@@ -38,6 +38,5 @@ class TestViewFuncs(unittest.TestCase):
         self.assertEqual(curlout, funcout)
 
 
-
 if __name__=='__main__':
     unittest.main()
