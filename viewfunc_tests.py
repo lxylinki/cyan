@@ -30,10 +30,9 @@ class TestViewFuncs(unittest.TestCase):
     def test_errorpage(self):
         devcyan = 'http://localhost:20143/'
         testfunc = ''.join([ random.choice(string.ascii_letters) for _ in range(10) ])
-        devcyan_addr = ''.join([devcyan, testfunc])
+        devcyan_addr = ''.join([devcyan, testfunc]) 
         print (devcyan_addr)
-        temp = Template(views.error)
-        funcout = temp.render(url = testfunc)
+        funcout = views.error_page(None)
         curlout = subprocess.check_output(['curl', devcyan_addr],universal_newlines = True)
         self.assertEqual(curlout, funcout)
 
