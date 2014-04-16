@@ -30,7 +30,7 @@ bye = '''
         <title>Cyan</title>
     </head>
     <body>
-        <h1> Goodbye {{name1}}!</h1>
+        <h1> Goodbye {{name2}}!</h1>
         <p> We can also say goodbye in other languages: </p>
     <ul>
     {% for bye in bye_list%}
