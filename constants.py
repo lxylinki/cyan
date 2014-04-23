@@ -6,6 +6,9 @@ PORT_NUM = 20143
 max_tokennum  = 3
 
 # page content: just a string
+login='''
+<!DOCTYPE html>
+'''
 hey='''
 <!DOCTYPE html>
 <html>
@@ -23,6 +26,7 @@ hey='''
     </body>
 </html>
 '''
+
 bye = '''
 <!DOCTYPE html>
 <html>
@@ -50,6 +54,24 @@ error='''
     <body>
         <h1> An error occurred!</h1>
         <p> Your requested url ({{url}}) is not here. Try another. </p>
+    </body>
+</html>
+'''
+
+testif='''
+<!DOCTYPE html>
+<html>
+    <body>
+        <h1>This is my homepage</h1>
+        %if name:
+    print (Template('My name is $name.').substitute(name = name))
+#return (Template('My name is $name.').substitute(name = name))
+         #endif%
+        
+        %if city:
+    print (Template('I live in $city.').substitute(city = city))
+#return (Template('I live in $city.').substitute(city = city))
+         #endif%
     </body>
 </html>
 '''
