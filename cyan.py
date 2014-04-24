@@ -1,21 +1,18 @@
 from wsgiref.simple_server import WSGIServer
 from wsgiref.simple_server import make_server
-
-import inspect
-import re
-
 from http import cookies
+import re
 import uuid
-import constants
+import redis
 import views
+import constants
 
-# class for your application's basic information 
-# application name and routing table
-
+# class for your application basic info
 class app:
-    def __init__(self, name, table={}):
+    def __init__(self, name, table={}, sessions={}):
         self.appname = name
         self.routing_table = table
+        self.active_sessions = sessions
 
     def get_appname(self):
         return self.name
@@ -25,14 +22,22 @@ class app:
     
     def run( self, ip='0.0.0.0', port=constants.PORT_NUM ):
         
-        def app_wrapper( environ, start_response):
+        def app_wrapper( environ, start_response ):
             myapp = getattr(views, "%s" %self.appname)
-            headers = [('Content-type','text/html; charset=utf-8')]
-            
+            clientIP = environ['REMOTE_ADDR']
+
+            # generate a cookie need to encode it to string
+            mycookie = cookie_gen(clientIP)
+            headers = [('Content-type','text/html; charset=utf-8'),
+                    mycookie.value_encode(mycookie)]
             status = '200 OK'
             if myapp == None:
                 status = '500 ERROR'
-
+            
+            # redis db connection
+            mypool = redis.ConnectionPool(host="localhost", port=6379, db=0)
+            setKeyVal( str(mycookie[clientIP]), clientIP, mypool) 
+            
             start_response(status, headers)
             return myapp(environ['PATH_INFO'], self.routing_table)
         
@@ -40,12 +45,44 @@ class app:
         print("Cyan wsgi server at http://%s:%s" % (ip, port))
         myserver.serve_forever()
 
-def cookie_gen( clientIP, num_bytes = 12 ):
+# session info
+class login_session():
+    def __init__(self, usrip, session_id):
+        self.ip = usrip
+        self.id = session_id
+
+    def get_usrip():
+        return self.usrip
+
+    def get_sessionid():
+        return self.id
+
+
+# user info
+class user():
+    def __init__(self, name, passwd):
+        self.name = name
+        self.passwd = passwd
+
+    def get_usrname():
+        return self.name
+
+# for interaction with redis
+def getVal(key, conn_pool):
+    myserver = redis.Redis(connection_pool=conn_pool)
+    resp = myserver.get(key)
+    return value
+
+def setKeyVal(key, val, conn_pool):
+    myserver = redis.Redis(connection_pool=conn_pool)
+    myserver.set(key, val)
+
+# generate a cookie
+def cookie_gen( clientIP ):
     c = cookies.SimpleCookie()
     sessionID = uuid.uuid4()
     c[clientIP] = sessionID
     return c
-
 
 def urlparse(url_request):
     tokens = re.split('\W+', url_request)

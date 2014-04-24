@@ -3,13 +3,15 @@ from jinja2 import Template
 import constants
 import cyan
 
+
+loginpage = Template(constants.login)
 welcomepage = Template(constants.hey)
 exitpage = Template(constants.bye)
 errorpage = Template(constants.error)
 
 # functions for devcyan app
 def cyan_login(reqname):
-    pass
+    return loginpage.render()
 
 def hello_cyan(reqname):
     return welcomepage.render(name1 = reqname, name_list = ['John Doe', 'Jane Doe', 'Joe Doe', 'Janice Doe'])
@@ -41,6 +43,7 @@ if __name__=='__main__':
     myapp = cyan.app('devcyan')
     
     # route functions for the app
+    myapp.route('cyan_login', cyan_login)
     myapp.route('hello_cyan', hello_cyan) 
     myapp.route('seeyou_cyan', seeyou_cyan )
     myapp.route('error_page', error_page )

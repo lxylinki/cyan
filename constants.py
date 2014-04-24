@@ -6,9 +6,6 @@ PORT_NUM = 20143
 max_tokennum  = 3
 
 # page content: just a string
-login='''
-<!DOCTYPE html>
-'''
 hey='''
 <!DOCTYPE html>
 <html>
@@ -26,7 +23,6 @@ hey='''
     </body>
 </html>
 '''
-
 bye = '''
 <!DOCTYPE html>
 <html>
@@ -58,20 +54,24 @@ error='''
 </html>
 '''
 
-testif='''
-<!DOCTYPE html>
+login= '''
+<!DOCTYPE HTML>
 <html>
-    <body>
-        <h1>This is my homepage</h1>
-        %if name:
-    print (Template('My name is $name.').substitute(name = name))
-#return (Template('My name is $name.').substitute(name = name))
-         #endif%
-        
-        %if city:
-    print (Template('I live in $city.').substitute(city = city))
-#return (Template('I live in $city.').substitute(city = city))
-         #endif%
-    </body>
+<head>
+    <Title>Cyan</title>
+</head>
+<body>
+</h1>Login</h1>
+    <form action= " " method= "POST">
+        <dl>
+            <dt>Username: 
+            <dd><input type=text name=username>
+            <dt>Password: 
+            <dd><input type=password name=password>
+            <dd><input type=submit value=Login>
+        </dl>
+    </form>
+</body>
 </html>
 '''
+
