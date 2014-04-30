@@ -28,7 +28,7 @@ class app:
         self.routing_table[url]=func
 
     def auth(self, usrname, passwd, conn_pool):
-        validpasswd = getVal(usrname, conn_pool)
+        validpasswd = getVal(str(usrname), conn_pool)
         if validpasswd == None:
             return False
         if passwd != validpass:
