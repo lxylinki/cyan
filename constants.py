@@ -62,7 +62,7 @@ login= '''
 </head>
 <body>
 </h1>Login</h1>
-    <form action= " " method= "POST">
+    <form action= "{{authfunc}}" method= "POST">
         <dl>
             <dt>Username: 
             <dd><input type=text name=username>

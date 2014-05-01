@@ -36,6 +36,9 @@ class TestViewFuncs(unittest.TestCase):
         curlout = subprocess.check_output(['curl', devcyan_addr],universal_newlines = True)
         self.assertEqual(curlout, funcout)
 
+    def test_loginpage(self):
+        pass
+
 
 if __name__=='__main__':
     unittest.main()
