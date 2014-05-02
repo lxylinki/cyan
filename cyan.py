@@ -1,8 +1,10 @@
 from wsgiref.simple_server import WSGIServer
 from wsgiref.simple_server import make_server
+
+from html import escape
 from http import cookies
 from jinja2 import Template
-from cgi import parse_qs, escape
+from urllib.parse import parse_qs
 
 import re
 import redis
@@ -25,41 +27,58 @@ class app:
     def route(self, url, func):
         self.routing_table[url]=func
     
-    def run(self, ip='0.0.0.0', port=constants.PORT_NUM, auth=False):
+    def run(self, ip='0.0.0.0', port=constants.PORT_NUM, auth=False, authfunc=None):
+        
         def auth_wrapper( environ, start_response ):
             # redis db connection pool
             mypool = redis.ConnectionPool(host='localhost', port=6379, db=0) 
             cliIP = environ['REMOTE_ADDR']
             login = False
-
-            # retrive cookie from client
-            cliCookie = cookies.SimpleCookie()
-            
             # if there no cookie present yet
             if environ.get('HTTP_COOKIE') == None:
-                login = False
+                pass
             else:
+                # retrive cookie from client
                 # check if client is valid logged in
+                cliCookie = cookies.SimpleCookie()
                 cliCookie.load(environ.get('HTTP_COOKIE'))
                 clikey = cliCookie[cliIP].value
                 login = authcheck(clikey, cliIP, mypool)
            
-            # check if the client is logged in i.e. a cookie is present and mathes our records in redis
+            # check if the client is logged in i.e. a cookie is present and mathes record
             if login == False:
-                # generate a cookie need to encode it to string
+                # generate a cookie that valid for entire domain
                 mycookie = cookie_gen(cliIP)
-                headers = [('Content-type','text/html; charset=utf-8'), tuple(re.split(':', mycookie.output()))]
+                mycookie[cliIP]['path'] = '/'
                 setKeyVal( mycookie[cliIP].value, cliIP, mypool) 
+                
+                # get auth function provided by app
+                appauth = getattr(views, "%s" % authfunc)
+                
+                # extract user post info
+                ifvalid = authcheck('myname', 'mypasswd', mypool)
+                
+                # call app auth function with results
+                page_content = appauth(name='myname', authresult=ifvalid)
+                
+                headers = [('Content-type','text/html; charset=utf-8'), 
+                        tuple(re.split(':', mycookie.output()))]
+                status = '200 OK'
+                if authfunc == None:
+                    status = '500 ERROR'
+                start_response(status, headers)
+                return [page_content.encode('utf-8')]
+                
             else:
                 headers = [('Content-type', 'text/html; charset=utf-8')]
-            
-            status = '200 OK'
-            # app func name
-            myapp = getattr(views, "%s" % self.appname)
-            if myapp == None:
-                status = '500 ERROR'
-            start_response(status, headers)
-            return myapp(environ['PATH_INFO'], self.routing_table)
+                status = '200 OK'
+                
+                # app func name
+                myapp = getattr(views, "%s" % self.appname)
+                if myapp == None:
+                    status = '500 ERROR'
+                start_response(status, headers)
+                return myapp(environ['PATH_INFO'], self.routing_table)
 
         # wrap app with authentication, loginpage is a string template
         def app_wrapper(environ, start_response):
@@ -71,14 +90,17 @@ class app:
                 status = '500 ERROR'
             start_response(status, headers)
             return myapp(environ['PATH_INFO'], self.routing_table)
-        
+       
+
         if auth == True:
             myserver = make_server(ip, port, auth_wrapper)
         else:
             myserver = make_server(ip, port, app_wrapper)
+        
         print("Cyan wsgi server at http://%s:%s" % (ip, port))
         myserver.serve_forever()
 
+# match the given name value pair 
 def authcheck( name, value, conn_pool ):
     validvalue = getVal( name, conn_pool )
     if validvalue == None:
@@ -90,8 +112,8 @@ def authcheck( name, value, conn_pool ):
 # session info
 class login_session:
     def __init__(self, usrip, session_id):
-        self.ip = usrip
         self.id = session_id
+        self.ip = usrip
 
     def get_usrip():
         return self.usrip
@@ -123,6 +145,11 @@ def setKeyVal(key, val, conn_pool):
     # encode key to utf-8
     myserver.set(str(key), val)
 
+# when log out delete key from db
+def delKey(key, conn_pool):
+    myserver = redis.Redis(connection_pool=conn_pool)
+    myserver.delete(str(key))
+
 # generate a cookie
 def cookie_gen( clientIP, idlen = 8 ):
     c = cookies.SimpleCookie()
@@ -139,16 +166,18 @@ def url_func(url_request, routing_table):
     if len(tokens) > constants.max_tokennum:
         return None
     
+    url = '' 
     for i in range(len(tokens)):
         if tokens[i]== '':
             continue
         url = tokens[i]
         break
-
-    if url not in routing_table:
+    
+    fullurl = ('/'+url).strip()
+    if fullurl not in routing_table:
         return None
 
-    return routing_table[url]
+    return routing_table[fullurl]
 
 def url_arg(url_request):
     tokens = urlparse(url_request)

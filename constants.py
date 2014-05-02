@@ -62,13 +62,13 @@ login= '''
 </head>
 <body>
 </h1>Login</h1>
-    <form action= "{{authfunc}}" method= "POST">
+    <form action= "{{redirect}}" method= "POST">
         <dl>
             <dt>Username: 
-            <dd><input type=text name=username>
+            <dd><input type="text" name="username">
             <dt>Password: 
-            <dd><input type=password name=password>
-            <dd><input type=submit value=Login>
+            <dd><input type="password" name="password">
+            <dd><input type="submit" value="Submit">
         </dl>
     </form>
 </body>

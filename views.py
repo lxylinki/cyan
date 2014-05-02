@@ -3,11 +3,24 @@ from jinja2 import Template
 import constants
 import cyan
 
+loginpage = Template(constants.login)
 welcomepage = Template(constants.hey)
 exitpage = Template(constants.bye)
 errorpage = Template(constants.error)
 
-# functions for devcyan app
+# functions for devcyan app, need reqname as argument by default
+# set reqname to None if not required
+
+# this is my auth func
+# name and authresult will back from framework side 
+def cyan_login( reqname=None, name='', authresult=False):
+    if authresult == False:
+        return loginpage.render(redirect='/cyan_login')
+
+    login_url='/hello_cyan/'+name
+    return loginpage.render(redirect=login_url)
+
+# regular funcs
 def hello_cyan(reqname):
     return welcomepage.render(name1 = reqname, name_list = ['John Doe', 'Jane Doe', 'Joe Doe', 'Janice Doe'])
 
@@ -35,10 +48,12 @@ if __name__=='__main__':
     myapp = cyan.app('devcyan')
     
     # route functions for the app
-    myapp.route('hello_cyan', hello_cyan) 
-    myapp.route('seeyou_cyan', seeyou_cyan )
-    myapp.route('error_page', error_page )
+    myapp.route('/', cyan_login )
+    myapp.route('/cyan_login', cyan_login )
+    myapp.route('/hello_cyan', hello_cyan) 
+    myapp.route('/seeyou_cyan', seeyou_cyan )
+    myapp.route('/error_page', error_page )
     
     # run the application
-    # myapp.run()
-    myapp.run(auth=True)
+    myapp.run()
+    #myapp.run(auth=True, authfunc='cyan_login')
