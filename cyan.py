@@ -78,7 +78,8 @@ class app:
                 if myapp == None:
                     status = '500 ERROR'
                 start_response(status, headers)
-                return myapp(environ['PATH_INFO'], self.routing_table)
+                page_content = myapp(environ['PATH_INFO'], self.routing_table)
+                return [page_content.encode('utf-8')]
 
         # wrap app with authentication, loginpage is a string template
         def app_wrapper(environ, start_response):
@@ -89,7 +90,8 @@ class app:
             if myapp == None:
                 status = '500 ERROR'
             start_response(status, headers)
-            return myapp(environ['PATH_INFO'], self.routing_table)
+            page_content = myapp(environ['PATH_INFO'], self.routing_table)
+            return [page_content.encode('utf-8')]
        
 
         if auth == True:

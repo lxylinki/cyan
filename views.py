@@ -33,15 +33,13 @@ def error_page(reqname):
 def devcyan(url_request, routing_table):
     # get function from url_request
     myfunc = cyan.url_func(url_request, routing_table)
-
     if myfunc == None:
         error_msg = error_page(myfunc)
-        return [error_msg.encode('utf-8')]
+        return error_msg
     else:
         # get argument for your function
         arg = cyan.url_arg(url_request)
-        page_content = myfunc(arg)
-        return [page_content.encode('utf-8')]
+        return myfunc(arg)
 
 if __name__=='__main__':
     # return an instance of appinfo
