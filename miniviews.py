@@ -1,5 +1,6 @@
 # a minimal example
-# change filename to views to run
+# change the name of this file to views.py before run
+
 import cyan
 
 def helloworld(url, routes):
