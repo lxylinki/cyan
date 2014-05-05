@@ -1,4 +1,5 @@
 # a minimal example
+# change filename to views to run
 import cyan
 
 def helloworld(url, routes):
